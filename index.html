@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Hour Countdown Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .timer-display {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 40px;
+        }
+
+        .circle-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .countdown-circle {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 10;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: #667eea;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 282.743;
+            stroke-dashoffset: 282.743;
+            transition: stroke-dashoffset 0.5s linear;
+        }
+
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        #timeInput {
+            width: 200px;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        #timeInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            min-width: 120px;
+        }
+
+        #startBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #startBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #pauseBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        #pauseBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        #resetBtn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        #resetBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .alarm-indicator {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .alarm-indicator.active {
+            opacity: 1;
+            background: #ff6b6b;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .instruction {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ Countdown Timer</h1>
+        
+        <div class="timer-display">
+            <div class="circle-container">
+                <svg class="countdown-circle" viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circle-progress" cx="50" cy="50" r="45"></circle>
+                </svg>
+            </div>
+            <div id="countdown">24:00:00</div>
+        </div>
+
+        <div class="input-group">
+            <label for="timeInput">Set Time (hours):</label>
+            <input type="number" id="timeInput" value="24" min="0.01" step="0.01">
+        </div>
+
+        <div class="buttons">
+            <button id="startBtn">Start</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="alarm-indicator" id="alarmIndicator">
+            🚨 TIME'S UP! 🚨
+        </div>
+
+        <div class="instruction">
+            💡 Tip: You can use decimals (e.g., 1.5 hours = 1h 30min)
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const timeInput = document.getElementById('timeInput');
+        const countdownText = document.getElementById('countdown');
+        const circleProgress = document.querySelector('.circle-progress');
+        const alarmIndicator = document.getElementById('alarmIndicator');
+        
+        let timer;
+        let totalTime;
+        let remainingTime;
+        let isPaused = false;
+
+        // Create alarm audio
+        const alarm = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hrs > 0) {
+                return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateTimer() {
+            if (remainingTime <= 0) {
+                clearInterval(timer);
+                circleProgress.style.strokeDashoffset = '0';
+                countdownText.textContent = '00:00';
+                
+                // Play alarm and show indicator
+                alarm.play();
+                alarmIndicator.classList.add('active');
+                
+                return;
+            }
+            
+            remainingTime--;
+            countdownText.textContent = formatTime(remainingTime);
+            const dashOffset = (282.743 * (remainingTime / totalTime)).toFixed(3);
+            circleProgress.style.strokeDashoffset = dashOffset;
+        }
+
+        startBtn.addEventListener('click', () => {
+            // Hide alarm indicator
+            alarmIndicator.classList.remove('active');
+            
+            if (isPaused && timer) {
+                isPaused = false;
+                timer = setInterval(updateTimer, 1000);
+                return;
+            }
+            
+            clearInterval(timer);
+            // Convert hours to seconds
+            const hours = parseFloat(timeInput.value) || 0;
+            totalTime = Math.floor(hours * 3600);
+            remainingTime = totalTime;
+            
+            if (totalTime > 0) {
+                countdownText.textContent = formatTime(totalTime);
+                circleProgress.style.strokeDashoffset = '282.743';
+                timer = setInterval(updateTimer, 1000);
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (!isPaused) {
+                clearInterval(timer);
+                isPaused = true;
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            alarm.pause();
+            alarm.currentTime = 0;
+            alarmIndicator.classList.remove('active');
+            countdownText.textContent = '24:00:00';
+            timeInput.value = 24;
+            circleProgress.style.strokeDashoffset = '282.743';
+            isPaused = false;
+        });
+    </script>
+</body>
+</html>
